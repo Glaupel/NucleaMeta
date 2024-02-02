@@ -3,6 +3,7 @@ SPDX-License-Identifier: CC-BY-4.0
 (c) Desenvolvido por Jeff Prestes
 This work is licensed under a Creative Commons Attribution 4.0 International License.
 */
+//0xF3CfbAC29ca1DE60d41DD16755a127032B26A878
 /*
 * "Commitar" fonte do contrato de aluguel no seu repositorio de fontes no Github com o nome de nuclea-aula05.sol
 * Fazer deploy do contrato de aluguel na rede de teste Sepolia
@@ -14,10 +15,12 @@ This work is licensed under a Creative Commons Attribution 4.0 International Lic
 pragma solidity 0.8.19;
  
 contract Aluguel {
+   
     struct DadosPagamento {
         uint quandoFoiPago;
         uint valorPago;
     }
+   
     string public locatario;
     string public locador;
     uint256 private valor;
@@ -34,9 +37,9 @@ contract Aluguel {
     address payable public contaLocador;
     address public owner;
  
-    constructor(    string memory _nomeLocador, 
-                    string memory _nomeLocatario, 
-                    address payable _contaLocador, 
+    constructor(    string memory _nomeLocador,
+                    string memory _nomeLocatario,
+                    address payable _contaLocador,
                     uint256 _valorDoAluguel)  payable {
         locador = _nomeLocador;
         locatario = _nomeLocatario;
@@ -44,25 +47,32 @@ contract Aluguel {
         contaLocador = _contaLocador;
         owner = msg.sender;
     }
+ 
     function valorAtualDoAluguel() public view returns (uint256) {
         return valor;
     }
-    function simulaMulta( uint256 mesesRestantes, uint256 totalMesesContrato) public view returns(uint256 valorMulta) 
+ 
+    function simulaMulta( uint256 mesesRestantes, uint256 totalMesesContrato) public view returns(uint256 valorMulta)
     {
         valorMulta = valor*numeroMaximoLegalDeAlugueisParaMulta;
         valorMulta = valorMulta/totalMesesContrato;
         valorMulta = valorMulta*mesesRestantes;
         return valorMulta;
-    } 
+    }
+       
     function reajustaAluguel(uint256 percentualReajuste) public {
         require(msg.sender == owner, "somente o dono do imovel pode reajustar o aluguel");
-        if (percentualReajuste > 20) {
+         if (percentualReajuste > 20) {
             percentualReajuste = 20;
+       
+           
         }
         uint256 valorDoAcrescimo = 0;
         valorDoAcrescimo = ((valor*percentualReajuste)/100);
         valor = valor + valorDoAcrescimo;
+       
     }
+   
     function aditamentoValorAluguel(uint256 valorCerto) public   {
         valor = valorCerto;
     }
@@ -73,14 +83,17 @@ contract Aluguel {
             valor = valor+((valor*percentual)/100);
         }
     }
-
+   
+   
     function receberPagamento() public payable {        
         require(msg.value>=valor, "Valor insuficiente");
         contaLocador.transfer(msg.value);
         DadosPagamento memory dPgto = DadosPagamento(block.timestamp, msg.value);
         statusPagamento.push(dPgto);
     }
+   
     //msg.value = valor em wei enviado ao contrato
+   
     function retornaTexto(uint256 _parametro) public view returns (string memory) {
         if ((valor * _parametro) > 5000) {
             return "Muito caro";
@@ -88,6 +101,7 @@ contract Aluguel {
             return "Preco razoavel";
         }
     }
+   
     function quantosPagamentosJaForamFeitos() public view returns (uint256) {
         return statusPagamento.length;
     }
